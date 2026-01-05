@@ -26,7 +26,7 @@ Autonomous pentesting agent using LLM (Ollama) and tools like nmap, gobuster, et
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/htb-agent.git
+git clone https://github.com/miguel-hub1/htb-agent.git
 cd htb-agent
 ```
 
