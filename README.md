@@ -32,7 +32,7 @@ cd htb-agent
 
 ### 2. Configure Ollama
 
-**Option A: Use local Ollama (recommended)**
+**Option A: Use local Ollama**
 ```bash
 # Install Ollama
 curl -fsSL https://ollama.com/install.sh | sh
@@ -46,13 +46,12 @@ ollama pull llama3.2:1b
 
 **Option B: Use Ollama in Docker**
 ```bash
-docker-compose up -d ollama
-docker exec -it ollama ollama pull llama3.2:1b
+docker-compose build agent
+docker exec -it ollama ollama pull llama3.2
 ```
 
 ### 3. Start the agent
 ```bash
-docker-compose build
 docker-compose up -d
 ```
 
