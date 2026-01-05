@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - htb-network
+
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    container_name: htb-agent
+    depends_on:
+      - ollama
+    volumes:
+      - ./agent:/app
+      - ./results:/results
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    networks:
+      - htb-network
+    # Importante: necesita privilegios para herramientas de red
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    stdin_open: true
+    tty: true
+
+volumes:
+  ollama_data:
+
+networks:
+  htb-network:
+    driver: bridge

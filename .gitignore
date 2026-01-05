@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+ENV/
+
+# uv
+.uv/
+uv.lock
+
+# Docker
+*.log
+
+# Results y datos sensibles
+results/
+*.txt
+*.json
+*.csv
+
+# Secrets
+.env
+secrets/
+credentials/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Ollama data
+ollama_data/
