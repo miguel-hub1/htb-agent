@@ -28,9 +28,9 @@ IMPORTANTE: Llama las funciones una a la vez y analiza los resultados antes de c
         
         # Mapeo de nombres de funciones a métodos
         tool_map = {
-            "nmap_scan": self.tools.nmap_scan,
-            "gobuster_scan": self.tools.gobuster_scan,
-            "whatweb_scan": self.tools.whatweb_scan
+            "nmap": self.tools.nmap,
+            "gobuster": self.tools.gobuster,
+            "whatweb": self.tools.whatweb
         }
         
         if tool_name not in tool_map:
@@ -43,7 +43,7 @@ IMPORTANTE: Llama las funciones una a la vez y analiza los resultados antes de c
         except Exception as e:
             return f"Error ejecutando {tool_name}: {str(e)}"
     
-    def run(self, target: str, max_iterations: int = 10):
+    def run(self, target: str, max_iterations: int = 100):
         """
         Ejecuta el agente autónomamente en el objetivo
 

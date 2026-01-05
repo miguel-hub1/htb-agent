@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   ollama:
     image: ollama/ollama:latest
@@ -10,6 +8,9 @@ services:
       - "11434:11434"
     networks:
       - htb-network
+
+    # ✅ GPU EN WINDOWS
+    gpus: all
 
   agent:
     build:
@@ -25,12 +26,12 @@ services:
       - OLLAMA_HOST=http://ollama:11434
     networks:
       - htb-network
-    # Importante: necesita privilegios para herramientas de red
     cap_add:
       - NET_ADMIN
       - NET_RAW
     stdin_open: true
     tty: true
+    command: tail -f /dev/null
 
 volumes:
   ollama_data:

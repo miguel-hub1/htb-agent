@@ -80,125 +80,113 @@ class PentestingTools:
                 "error": str(e)
             }
     
-    def nmap_scan(self, target: str, scan_type: str = "basic") -> str:
+    def nmap(self, args: list) -> str:
         """
-        Escanea un objetivo con nmap
+        Ejecuta nmap con argumentos definidos por el LLM
         """
-        scan_options = {
-            "basic": ["-sV", "-sC"],
-            "full": ["-p-", "-sV", "-sC", "-A"],
-            "quick": ["-T4", "-F"],
-            "stealth": ["-sS", "-sV"]
-        }
-        
-        options = scan_options.get(scan_type, scan_options["basic"])
-        command = ["nmap"] + options + [target]
-        
+        command = ["nmap"] + args
+
         print(f"Ejecutando: {' '.join(command)}\n")
-        result = self.run_command(command, stream_output=True)  # <-- streaming ON
-        
-        if result["success"]:
-            return result["output"]
-        else:
-            return f"Error: {result['error']}"
+        result = self.run_command(command, stream_output=True)
+
+        return result["output"] if result["success"] else f"Error: {result['error']}"
+
     
-    def gobuster_scan(self, target: str, wordlist: str = "/usr/share/wordlists/dirb/common.txt") -> str:
+    def gobuster(self, args: list) -> str:
         """
-        Enumera directorios y archivos en un servidor web
+        Ejecuta gobuster con argumentos definidos por el LLM
         """
-        command = [
-            "gobuster", "dir",
-            "-u", target,
-            "-w", wordlist,
-            "-t", "20"  # Sin -q para ver progreso
-        ]
-        
+        command = ["gobuster"] + args
+
         print(f"Ejecutando: {' '.join(command)}\n")
-        result = self.run_command(command, stream_output=True)  # <-- streaming ON
-        
-        if result["success"]:
-            return result["output"] if result["output"] else "No se encontraron directorios"
-        else:
-            return f"Error: {result['error']}"
+        result = self.run_command(command, stream_output=True)
+
+        return result["output"] if result["success"] else f"Error: {result['error']}"
     
-    def whatweb_scan(self, target: str) -> str:
+    def whatweb(self, args: list) -> str:
         """
-        Identifica tecnologías web del objetivo
+        Ejecuta whatweb con argumentos definidos por el LLM
         """
-        command = ["whatweb", "-a", "3", target]
-        
+        command = ["whatweb"] + args
+
         print(f"Ejecutando: {' '.join(command)}\n")
-        result = self.run_command(command, stream_output=True)  # <-- streaming ON
-        
-        if result["success"]:
-            return result["output"]
-        else:
-            return f"Error: {result['error']}"
+        result = self.run_command(command, stream_output=True)
+
+        return result["output"] if result["success"] else f"Error: {result['error']}"
     
     def get_tool_definitions(self) -> list:
-        """
-        Define las tools para Ollama en formato OpenAI
-        Esto es lo que le dice al LLM qué funciones puede llamar
-        """
         return [
             {
                 "type": "function",
                 "function": {
-                    "name": "nmap_scan",
-                    "description": "Escanea puertos y servicios de un objetivo usando nmap. Úsalo para descubrir qué puertos están abiertos y qué servicios corren.",
+                    "name": "nmap",
+                    "description": (
+                        "Ejecuta nmap. Elige tú los flags, técnicas y targets "
+                        "como lo haría un pentester humano."
+                    ),
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "target": {
-                                "type": "string",
-                                "description": "IP o hostname del objetivo a escanear"
-                            },
-                            "scan_type": {
-                                "type": "string",
-                                "enum": ["basic", "full", "quick", "stealth"],
-                                "description": "Tipo de escaneo. basic=común, full=todos los puertos, quick=rápido, stealth=sigiloso"
+                            "args": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": (
+                                    "Lista de argumentos EXACTOS para nmap, "
+                                    "por ejemplo: ['-sS', '-p-', '-T4', '10.10.10.10']"
+                                )
                             }
                         },
-                        "required": ["target"]
+                        "required": ["args"]
                     }
                 }
             },
             {
                 "type": "function",
                 "function": {
-                    "name": "gobuster_scan",
-                    "description": "Enumera directorios y archivos en un servidor web usando fuzzing. Úsalo cuando encuentres un puerto HTTP/HTTPS abierto.",
+                    "name": "gobuster",
+                    "description": (
+                        "Ejecuta gobuster. Decide el modo (dir, dns, vhost), "
+                        "wordlists, threads y target."
+                    ),
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "target": {
-                                "type": "string",
-                                "description": "URL completa del sitio web (debe incluir http:// o https://)"
-                            },
-                            "wordlist": {
-                                "type": "string",
-                                "description": "Ruta al wordlist (opcional, usa /usr/share/wordlists/dirb/common.txt por defecto)"
+                            "args": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": (
+                                    "Argumentos completos para gobuster, "
+                                    "ejemplo: ['dir', '-u', 'http://target', '-w', 'wordlist.txt']"
+                                )
                             }
                         },
-                        "required": ["target"]
+                        "required": ["args"]
                     }
                 }
             },
             {
                 "type": "function",
                 "function": {
-                    "name": "whatweb_scan",
-                    "description": "Identifica tecnologías web, CMS, frameworks y versiones. Úsalo para reconnaissance web.",
+                    "name": "whatweb",
+                    "description": (
+                        "Ejecuta whatweb para fingerprinting web. "
+                        "Decide el nivel de agresividad y el target."
+                    ),
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "target": {
-                                "type": "string",
-                                "description": "URL del sitio web a analizar"
+                            "args": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": (
+                                    "Argumentos completos para whatweb, "
+                                    "ejemplo: ['-a', '3', 'http://target']"
+                                )
                             }
                         },
-                        "required": ["target"]
+                        "required": ["args"]
                     }
                 }
             }
         ]
+
