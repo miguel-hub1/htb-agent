@@ -1,6 +1,6 @@
 FROM kalilinux/kali-rolling:latest
 
-# Instalar herramientas de pentesting
+# Install pentesting tools
 RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates \
@@ -14,24 +14,28 @@ RUN apt-get update && apt-get install -y \
     wordlists \
     seclists \
     whatweb \
+    enum4linux \
+    smbclient \
+    ftp \
+    exploitdb \
+    netcat-traditional \
+    hydra \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar uv (se instala en /root/.local/bin)
+# Install uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Actualizar PATH con la ruta correcta
 ENV PATH="/root/.local/bin:$PATH"
 
-# Verificar que funciona
+# Verify installation
 RUN uv --version
 
 WORKDIR /app
 
-# Copiar pyproject.toml
+# Copy project files
 COPY agent/pyproject.toml ./
 
-# Instalar dependencias
+# Install dependencies
 RUN uv sync
 
-# Mantener contenedor vivo
+# Keep container alive
 CMD ["tail", "-f", "/dev/null"]

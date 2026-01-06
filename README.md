@@ -251,36 +251,6 @@ gobuster version
 - [Kali Linux Tools](https://www.kali.org/tools/)
 - [OWASP Testing Guide](https://owasp.org/www-project-web-security-testing-guide/)
 
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the project
-2. Create a branch (`git checkout -b feature/new-tool`)
-3. Commit your changes (`git commit -am 'Add new tool'`)
-4. Push to the branch (`git push origin feature/new-tool`)
-5. Open a Pull Request
-
-### Contribution Guidelines
-
-- Follow PEP 8 for Python code
-- Add docstrings to all functions
-- Update README if adding new features
-- Test your changes before submitting
-- Keep commits atomic and well-described
-
-## 🗺️ Roadmap
-
-- [ ] Add more tools (metasploit, burp suite API)
-- [ ] Implement persistent memory
-- [ ] Multiple specialized agents
-- [ ] Automatic report generation
-- [ ] Integration with external APIs (Shodan, VirusTotal)
-- [ ] Web UI to control the agent
-- [ ] Support for distributed scanning
-- [ ] Custom wordlists management
-- [ ] Vulnerability database integration
-- [ ] Export to standard formats (JSON, XML, CSV)
 
 ## 📊 Architecture
 ```
@@ -299,23 +269,6 @@ Contributions are welcome! Please:
 ```
 
 The agent uses **native tool calling** (function calling) to autonomously decide which tools to execute and in what order, based on the findings from previous steps.
-
-## 📝 License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
-## 👤 Author
-
-Your Name - [@your_twitter](https://twitter.com/your_twitter)
-
-Project Link: [https://github.com/YOUR_USERNAME/htb-agent](https://github.com/YOUR_USERNAME/htb-agent)
-
-## 🙏 Acknowledgments
-
-- [Anthropic Claude](https://www.anthropic.com/) for assistance in development
-- [Ollama team](https://ollama.com/) for the amazing local LLM runtime
-- [Kali Linux](https://www.kali.org/) for the comprehensive pentesting toolkit
-- HackTheBox community for inspiration
 
 ---
 
