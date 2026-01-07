@@ -125,17 +125,46 @@ class PentestingTools:
         result = self.run_command(command, stream_output=True)
         return result["output"] if result["success"] else f"Error: {result['error']}"
     
+    
     def ftp(self, args: list) -> str:
-        """Execute ftp client to test FTP access"""
-        command = ["ftp"] + args
-        print(f"📤 Running: {' '.join(command)}\n")
-        result = self.run_command(command, stream_output=True)
+        """
+        Execute FTP commands in batch mode using heredoc syntax.
+        
+        Args:
+            args: [host, commands_list, user, password]
+                - host: Target FTP server
+                - commands_list: List of FTP commands like ['ls', 'get file.txt']
+                - user: Username (default: 'anonymous')
+                - password: Password (default: 'anonymous')
+        """
+        if len(args) < 1:
+            return "Error: FTP requires at least [host]"
+        
+        host = args[0]
+        commands = args[1] if len(args) > 1 and isinstance(args[1], list) else ['ls']
+        user = args[2] if len(args) > 2 else "anonymous"
+        password = args[3] if len(args) > 3 else "anonymous"
+        
+        # Build FTP command script
+        script_lines = [f"user {user} {password}"] + commands + ["quit"]
+        script = "\n".join(script_lines)
+        
+        # Use heredoc syntax: ftp -n HOST << EOF
+        heredoc_command = f"ftp -n {host} << 'EOF'\n{script}\nEOF"
+        
+        print(f"📤 Running FTP batch against {host}\n")
+        print(f"Command:\n{heredoc_command}\n")
+        print("-" * 60)
+
+        # Execute using bash with heredoc
+        result = self.run_command(["bash", "-c", heredoc_command], stream_output=True)
         return result["output"] if result["success"] else f"Error: {result['error']}"
+
     
     def ssh(self, args: list) -> str:
         """Execute ssh commands for SSH enumeration"""
         command = ["ssh"] + args
-        print(f"🔑 Running: {' '.join(command)}\n")
+        print(f"🔐 Running: {' '.join(command)}\n")
         result = self.run_command(command, stream_output=True)
         return result["output"] if result["success"] else f"Error: {result['error']}"
     
@@ -160,9 +189,41 @@ class PentestingTools:
         result = self.run_command(command, stream_output=True)
         return result["output"] if result["success"] else f"Error: {result['error']}"
     
+    def cat(self, args: list) -> str:
+        """Read file contents"""
+        if not args:
+            return "Error: cat requires a filename"
+        
+        filename = args[0]
+        command = ["cat", filename]
+        print(f"Reading file: {filename}\n")
+        result = self.run_command(command, stream_output=True)
+        return result["output"] if result["success"] else f"Error: {result['error']}"
+    
     def get_tool_definitions(self) -> list:
         """Define available tools for LLM function calling"""
         return [
+            {
+                "type": "function",
+                "function": {
+                    "name": "cat",
+                    "description": (
+                        "Read the contents of a file. Use this after downloading files via FTP or finding files locally. "
+                        "Example: ['flag.txt'] or ['passwords.txt']"
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "args": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Filename to read. Example: ['flag.txt']"
+                            }
+                        },
+                        "required": ["args"]
+                    }
+                }
+            },
             {
                 "type": "function",
                 "function": {
@@ -183,6 +244,32 @@ class PentestingTools:
                                 "type": "array",
                                 "items": {"type": "string"},
                                 "description": "List of nmap arguments. Target must be last element. Use --script for service-specific enumeration."
+                            }
+                        },
+                        "required": ["args"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "ftp",
+                    "description": (
+                        "Execute FTP client commands using heredoc syntax (ftp -n HOST << EOF). "
+                        "ONLY use if FTP (port 21) is open. Perfect for testing anonymous login and file enumeration. "
+                        "Args format: [host, commands_list, user, password] "
+                        "Example: ['10.129.1.14', ['ls', 'pwd'], 'anonymous', 'anonymous'] "
+                        "Example: ['10.10.10.5', ['ls', 'get flag.txt'], 'anonymous', 'anonymous'] "
+                        "Common commands: 'ls', 'cd directory', 'get filename', 'put filename', 'pwd', 'binary' "
+                        "⚠️ This tool is EXCLUSIVELY for FTP services on port 21."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "args": {
+                                "type": "array",
+                                "description": "Array with: [host, commands_list, user (optional), password (optional)]. Commands_list is an array of FTP commands like ['ls', 'get file.txt'].",
+                                "items": {}
                             }
                         },
                         "required": ["args"]
@@ -313,7 +400,7 @@ class PentestingTools:
                     "description": (
                         "Search exploit-db for known vulnerabilities. Use AFTER identifying service versions. "
                         "Search by service name and version. Returns exploit codes and descriptions. "
-                        "Example: ['apache 2.4.18'] or ['openssh 7.2']"
+                        "Example: ['apache 2.4.18'] or ['openssh 7.2'] or ['vsftpd 2.3.4']"
                     ),
                     "parameters": {
                         "type": "object",
